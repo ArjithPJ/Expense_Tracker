@@ -61,16 +61,28 @@ button:hover {
 }
 
 .login-link {
-    margin-top: 20px; /* Adjust margin as needed */
+    margin-top: 20px;
 }
 
 .login-link a {
-/* Styles for the link */
-    color: blue; /* Example color */
-    text-decoration: none; /* Remove underline */
+    color: blue;
+    text-decoration: none;
 }
 
 .login-link a:hover {
 
+    text-decoration: underline; 
+}
+
+.signup-link {
+    margin-top: 20px;
+}
+
+.signup-link a {
+    color: blue;
+    text-decoration: none;
+}
+
+.signup-link a:hover {
     text-decoration: underline; 
 }

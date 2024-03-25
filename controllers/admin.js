@@ -10,66 +10,76 @@ exports.getSignup = (req, res, next) => {
     })
 };
 
-exports.postSignup = (req, res, next) => {
+exports.postSignup = async (req, res, next) => {
     const name = req.body.name;
     const email = req.body.email;
     const password = req.body.password;
-    // const [account, metadata] = sequelize.query(`SELECT * from Users WHERE email='${req.body.email}'`);
-    // sequelize.query(`SELECT * from Users WHERE email='${req.body.email}'`)
-    Users.findByPk(email)
-    .then(result =>{
-        console.log(result);
-        if(result){
+
+    try {
+        // Check if user already exists
+        const existingUser = await Users.findOne({where:{ email: email}});
+        if (existingUser) {
             console.log("Account already exists");
-            res.redirect('/signup');
+            return res.redirect('/signup');
         }
-        else{
-            Users.create({
-                name: name,
-                email: email,
-                password: password
-            });
-            res.redirect('/home');
-        }
-    })
-    .catch(err => {
-        console.log(err);
-        
-    });
+
+        // Encrypt the password
+        const saltrounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltrounds);
+
+        // Create user with encrypted password
+        await Users.create({
+            name: name,
+            email: email,
+            password: hashedPassword // Store the hashed password
+        });
+        res.redirect('/home');
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 };
 
 exports.getLogin = (req, res, next) => {
     res.render('admin/login', {
         pageTitle: 'Login',
-        path: 'admin/login'
+        path: 'admin/login',
+        errorMessage: null
     });
 };
 
-exports.postLogin = (req, res, next) => {
+exports.postLogin = async (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    console.log(req.body.email);
-    console.log(req.body.password);
-    Users.findOne({ where: { email: email } })
-        .then(user => {
-            if (!user) {
-                res.status(401).json({ message: "User not found" });
-            } 
-            else if (user.password !== password) {
-                res.status(401).json({ message: "Incorrect password" });
-            } 
-            else {
-                res.render('admin/home', {
-                    pageTitle: 'Home',
-                    path: 'admin/home'
-                })
+
+    try {
+        const user = await Users.findOne({ where: { email: email } });
+
+        if (user) {
+            const isPasswordCorrect = await bcrypt.compare(password, user.password);
+            
+            if (isPasswordCorrect) {
+                res.redirect('/home');
+            } else {
+                res.render('admin/login', {
+                    pageTitle: 'Login',
+                    path: 'admin/login',
+                    errorMessage: "Incorrect password"
+                });
             }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            res.status(500).json({ message: "Internal server error" });
-        });
-}
+        } else {
+            res.render('admin/login', {
+                pageTitle: 'Login',
+                path: 'admin/login',
+                errorMessage: "User not found"
+            });
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 exports.getHome = (req, res, next) => {
     res.render('admin/home', {
         pageTitle: 'Home',
