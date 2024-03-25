@@ -8,12 +8,8 @@
 </head>
 <body>
     <div class="container">
-        <form class="signup-form" action="/signup" method="POST" >
-            <h2>Sign Up</h2>
-            <div class="input-container">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-            </div>
+        <form class="login-form" action="/login" method="POST" >
+            <h2>Login</h2>
             <div class="input-container">
                 <label for="email">Email:</label>
                 <input type="text" id="email" name="email" required>
@@ -22,10 +18,7 @@
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <div class="login-link">
-                <a href="/login">Already have an Account? Login</a>
-              </div>
-            <button type="submit">Sign Up</button>
+            <button type="submit">Login</button>
         </form>
     </div>
 </body>
