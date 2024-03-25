@@ -1,4 +1,5 @@
 const Users = require('../models/users');
+const Expenses = require('../models/expenses');
 const bcrypt = require('bcrypt');
 
 const sequelize = require('../util/database');
@@ -80,9 +81,31 @@ exports.postLogin = async (req, res, next) => {
     }
 };
 
+exports.postAddExpense = (req, res, next) => {
+    const amount = req.body.amount;
+    const description = req.body.description;
+    const category = req.body.category;
+    Expenses.create({
+        amount: amount,
+        description: description,
+        category: category
+    })
+    .then(()=>{
+        res.redirect('/home');
+    });
+};
+
 exports.getHome = (req, res, next) => {
-    res.render('admin/home', {
-        pageTitle: 'Home',
-        path: 'admin/home'
+    Expenses.findAll()
+    .then((expenses)=>{
+        console.log(expenses);
+        res.render('admin/home', {
+            pageTitle: 'Home',
+            path: 'admin/home',
+            expenses: expenses
+        });
+    })
+    .catch(err => {
+        console.log(err);
     });
 };

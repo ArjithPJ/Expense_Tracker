@@ -11,4 +11,6 @@ router.get('/home', adminController.getHome);
 router.get('/login', adminController.getLogin);
 router.post('/login', adminController.postLogin);
 
+router.post('/add-expense', adminController.postAddExpense);
+
 module.exports = router;

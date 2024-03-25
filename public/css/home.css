@@ -1,0 +1,50 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-image: url('business_woman.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 60px;
+    border-radius: 10px;
+    align-items: center;
+    
+}
+
+.container-expenses {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 60px;
+    border-radius: 10px;
+    align-items: center;
+}
+
+.input-container {
+    align-items: center;
+    
+}
+
+.input-short {
+    width: 150px  /* Adjust width as needed */
+}
+
+.btn {
+    background-color: #007bff; /* Blue color */
+    border-color: #007bff; /* Blue color for border */
+    padding: 8px;
+    border-radius: 10px;
+    align-items: center
+}
+
+.btn:hover {
+    background-color: #0056b3; /* Darker blue color on hover */
+    border-color: #0056b3; /* Darker blue color for border on hover */
+}
+
