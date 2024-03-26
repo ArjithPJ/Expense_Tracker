@@ -1,6 +1,7 @@
 const Users = require('../models/users');
 const Expenses = require('../models/expenses');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const sequelize = require('../util/database');
 
@@ -29,12 +30,14 @@ exports.postSignup = async (req, res, next) => {
         const hashedPassword = await bcrypt.hash(password, saltrounds);
 
         // Create user with encrypted password
-        await Users.create({
+        const newUser = await Users.create({
             name: name,
             email: email,
             password: hashedPassword // Store the hashed password
         });
-        res.redirect('/home');
+        console.log(newUser);
+        const token = jwt.sign({id: newUser.id},'cenf93rh23rhqiuuhqw');
+        return res.redirect('/home/'+ token);
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ message: "Internal server error" });
@@ -58,9 +61,12 @@ exports.postLogin = async (req, res, next) => {
 
         if (user) {
             const isPasswordCorrect = await bcrypt.compare(password, user.password);
+            console.log(user);
+            const userId = user.id;
+            const token = jwt.sign({id: userId},'cenf93rh23rhqiuuhqw');
             
             if (isPasswordCorrect) {
-                res.redirect('/home');
+                res.redirect('/home/'+token);
             } else {
                 res.render('admin/login', {
                     pageTitle: 'Login',
@@ -85,27 +91,77 @@ exports.postAddExpense = (req, res, next) => {
     const amount = req.body.amount;
     const description = req.body.description;
     const category = req.body.category;
-    Expenses.create({
-        amount: amount,
-        description: description,
-        category: category
-    })
-    .then(()=>{
-        res.redirect('/home');
+    console.log(req.params);
+    const token =req.params.id;
+    jwt.verify(token, 'cenf93rh23rhqiuuhqw', (err, decoded) => {
+        if (err) {
+            console.error('Token verification failed:', err);
+        } else {
+            console.log('Decoded token:', decoded);
+
+            Expenses.create({
+                amount: amount,
+                description: description,
+                category: category,
+                id:  decoded.id
+            })
+            .then(()=>{
+                return res.redirect('/home/'+token);
+            })
+            .catch(error => {
+                console.error('Error creating expense:', error);
+                return res.status(500).json({ message: 'Internal server error' });
+            });
+        }
     });
+    
 };
 
 exports.getHome = (req, res, next) => {
-    Expenses.findAll()
-    .then((expenses)=>{
-        console.log(expenses);
-        res.render('admin/home', {
-            pageTitle: 'Home',
-            path: 'admin/home',
-            expenses: expenses
-        });
-    })
-    .catch(err => {
-        console.log(err);
+    const token = req.params.id;
+    jwt.verify(token,'cenf93rh23rhqiuuhqw', (err,decoded) => {
+        if(err){
+            console.error('Token Verification failed:', err);
+        } 
+        else{
+            console.log('Decoded token:', decoded);
+            sequelize.query(`SELECT * from expenses WHERE id='${decoded.id}'`)
+            .then(([expenses, metadata])=>{
+                console.log(expenses);
+                res.render('admin/home', {
+                    pageTitle: 'Home',
+                    path: 'admin/home',
+                    expenses: expenses,
+                    id: token
+                });
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        }
     });
+};
+
+exports.postDeleteExpense =(req, res, next) => {
+    const expenseId = req.body.expenseId;
+    const token = req.params.id;
+    jwt.verify(token, 'cenf93rh23rhqiuuhqw', (err, decoded) => {
+        if(err){
+            console.log('Token Verification failed:', err);
+        }
+        else{
+            console.log('Decoded token:', decoded);
+            Expenses.findByPk(expenseId)
+            .then(expense => {
+                return expense.destroy();
+            })
+            .then(() => {
+                res.redirect('/home/'+token);
+            })
+            .catch((err) => {
+                console.log(err);
+                res.status(500).json({ message: "Internal server error" });
+            });
+        }
+    })
 };

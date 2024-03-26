@@ -12,7 +12,7 @@
   </head>
   <body>
     <div class="container">
-        <form class="expense-form" action="/add-expense" method="POST" >
+        <form class="expense-form" action="/add-expense/<%= id %>" method="POST" >
             <div class="input-container">
                 <label for="Expense" class="form-label">Choose Expense Amount: </label>
                 <input type="text" id="text1" class="form-control" name="amount">
@@ -54,9 +54,11 @@
                         <td><%= expense.description %></td>
                         <td><%= expense.category %></td>
                         <td>
-                            <button class="btn delete-btn" data-expense-id="<%= expense.id %>">Delete</button>
-                        </td> <!-- Delete button in the new column -->
-    
+                            <form action="/delete-expense/<%= id %>" method="POST">
+                                <input type="hidden" name="expenseId" value="<%= expense.expense_id %>">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                 <% }); %>
             </tbody>
