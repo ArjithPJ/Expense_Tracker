@@ -36,8 +36,8 @@ body {
 }
 
 .btn {
-    background-color: #007bff; /* Blue color */
-    border-color: #007bff; /* Blue color for border */
+    background-color: green; /* Blue color */
+    border-color: green; /* Blue color for border */
     padding: 8px;
     border-radius: 10px;
     align-items: center
@@ -48,3 +48,33 @@ body {
     border-color: #0056b3; /* Darker blue color for border on hover */
 }
 
+.btn-shine {
+    background-color: #007bff;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-shine::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300%;
+    height: 300%;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    transition: all 0.5s;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+}
+
+.btn-shine:hover::after {
+    width: 0;
+    height: 0;
+}
+
+.btn-shine .btn {
+    position: relative;
+    z-index: 1;
+}

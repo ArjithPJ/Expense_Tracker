@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 
 const sequelize = require('../util/database');
 
+
 exports.getSignup = (req, res, next) => {
     res.render('admin/signup', {
         pageTitle: 'Signup',
@@ -119,6 +120,7 @@ exports.postAddExpense = (req, res, next) => {
 
 exports.getHome = (req, res, next) => {
     const token = req.params.id;
+    console.log(process.env.RAZORPAY_KEY_ID);
     jwt.verify(token,'cenf93rh23rhqiuuhqw', (err,decoded) => {
         if(err){
             console.error('Token Verification failed:', err);

@@ -9,19 +9,102 @@
 
     <link rel="stylesheet" href="/css/home.css">
     <title>Expenses</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   </head>
   <body>
+    
     <div class="container">
+        <div class="d-flex justify-content-end mb-3">
+            <!-- Button to initiate Razorpay payment -->
+            <button id="buyButton" class="button">Buy Premium</button>
+
+            <script>
+                // Function to handle payment success
+                function paymentSuccess(response) {
+                    // Store Razorpay payment ID in your database
+                    var paymentId = response.razorpay_payment_id;
+                    console.log("Payment ID:", paymentId);
+                    
+                    // Get the user ID or any other identifier needed for your backend
+                    // Make a Fetch API request to your backend to store payment ID
+                    fetch("/buypremium/<%= id %>", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ paymentId: paymentId })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            // Payment ID stored successfully
+                            alert('Payment successful! Payment ID: ' + paymentId);
+                        } else {
+                            // Handle error
+                            alert('Failed to store payment ID. Please contact support.');
+                        }
+                    })
+                    .catch(error => {
+                        // Handle network error
+                        console.error('Error:', error);
+                        alert('Network error. Please try again later.');
+                    });
+                }
+        
+                // Function to handle payment failure
+                function paymentFailure(error) {
+                    // Handle payment failure
+                    alert('Payment failed. Please try again later.');
+                }
+        
+                // Function to open Razorpay payment gateway
+                function openRazorpay() {
+                    var options = {
+                        "key": "rzp_test_8rQ1aXg9mbGC3Q", // Replace with your Razorpay API key
+                        "amount": 2500, // 25 Rupees = 2500 paisa
+                        "currency": "INR",
+                        "name": "Your Company Name",
+                        "description": "Premium Subscription",
+                        "handler": function (response) {
+                            // Payment success callback
+                            paymentSuccess(response);
+                        },
+                        "prefill": {
+                            "name": "Your Name",
+                            "email": "your_email@example.com",
+                            "contact": "9999999999"
+                        },
+                        "theme": {
+                            "color": "#528FF0"
+                        },
+                        "modal": {
+                            "ondismiss": function () {
+                                // Payment failure callback
+                                paymentFailure();
+                            }
+                        }
+                    };
+                    var rzp = new Razorpay(options);
+                    rzp.open();
+                }
+        
+                // Attach click event to the Buy button
+                document.getElementById('buyButton').onclick = function () {
+                    openRazorpay();
+                };
+            </script>
+        
+        </div>
+    
         <form class="expense-form" action="/add-expense/<%= id %>" method="POST" >
             <div class="input-container">
                 <label for="Expense" class="form-label">Choose Expense Amount: </label>
-                <input type="text" id="text1" class="form-control" name="amount">
+                <input type="text" id="text1" class="form-control" name="amount" required>
             </div>
             
             <br>
             <div class="input-container">
                 <label for="description">Choose Description: </label>
-                <input type="text" id="text2" class="form-control" name="description">
+                <input type="text" id="text2" class="form-control" name="description" required>
             </div>
             
             <br>
@@ -65,4 +148,6 @@
         </table>
     </div>
   </body>
+  
+  
 </html>

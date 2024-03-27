@@ -1,6 +1,7 @@
 const express =require('express');
 
 const adminController = require('../controllers/admin');
+const purchaseController = require('../controllers/purchase');
 
 const router = express.Router();
 
@@ -14,4 +15,5 @@ router.post('/login', adminController.postLogin);
 router.post('/add-expense/:id', adminController.postAddExpense);
 router.post('/delete-expense/:id', adminController.postDeleteExpense);
 
+router.post('/buypremium/:id',purchaseController.postbuyPremium);
 module.exports = router;
